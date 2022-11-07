@@ -11,9 +11,9 @@ using JuMP
 using GLPK
 m  = Model(GLPK.Optimizer)
 
-@variable(m, x[1:12],Int)
+@variable(m, x[1:12].>=0,Int)
 
-@objective(m,Min, x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] )
+@objective(m,Min, sum(x) )
 @constraint(m, x[1] + x[9] + x[10] + x[12] >= 15)
 @constraint(m, x[1] + x[2] + x[10] + x[11] >= 15)
 @constraint(m, x[2] + x[3] + x[11] + x[12] >= 18)
@@ -42,7 +42,7 @@ m  = Model(GLPK.Optimizer)
 
 M = 58
 
-@objective(m,Min, x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] )
+@objective(m,Min, sum(x) )
 @constraint(m, x[1] + x[9] + x[10] + x[12] >= 15)
 @constraint(m, x[1] + x[2] + x[10] + x[11] >= 15)
 @constraint(m, x[2] + x[3] + x[11] + x[12] >= 18)
