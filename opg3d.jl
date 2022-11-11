@@ -34,7 +34,7 @@ if termination_status(model) == MOI.OPTIMAL
     
     I = Array(1:n)
     Idx = copy(I)
-    U = Int.(value.(u))
+    U = Int.(round.(value.(u)))
 
     #Interpret result:
     for j in 2:n
