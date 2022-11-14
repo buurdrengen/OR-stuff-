@@ -15,11 +15,9 @@ function CheckCost(table,path)
     cost = 0
     for j in n[1:end-1]
         #print("Checking index ",j, "\n")
-        in_ = path[j]
-        out_ = path[j+1]
-        cost = cost + table[in_,out_]
+        cost = cost + table[path[j],path[j+1]]
     end
-    return cost + table[out_,1]
+    return cost + table[path[end],path[1]]
 end
 
 
