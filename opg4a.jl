@@ -1,19 +1,25 @@
 using JuMP, GLPK
 
-if !(@isdefined t)
+if !(@isdefined t, e, l)
     throw("Load dataset 'q3-data.jl' before running this script")
 end
 
 n = size(t,1)
-T = t
+#T = t
 
 model = Model(GLPK.Optimizer)
 
+M = 300
+
 @variable(model, x[1:n,1:n], Bin)
-@variable(model, u[1:n])
+@variable(model, u[1:n] .>= 0)
+@variable(model, tt[1:n] .>=0)
 
 ui = repeat(u[2:end],1,n-1)
 uj = transpose(ui)
+
+ti = repeat(tt[2:end],1,n-1)
+tj = transpose(ti)
 
 @objective(model, Min, sum(x.*t))
 
@@ -25,6 +31,12 @@ uj = transpose(ui)
 @constraint(model, u[2:end] .>= 2)
 @constraint(model, u[2:end] .<= n)
 
+@constraint(model, tt[1] .== 0)
+@constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]))
+@constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]))
+@constraint(model, ti - tj + x[2:end,2:end].*t[2:end,2:end] .<= M.*(1 .- x[2:end,2:end]))
+
+
 
 optimize!(model)
 
@@ -34,14 +46,15 @@ if termination_status(model) == MOI.OPTIMAL
     
     I = Array(1:n)
     Idx = copy(I)
-    U = Int.(round.(value.(u)))
+    U = (round.(value.(u)))
+    TT = (round.(value.(tt)))
 
     #Interpret result:
     for j in 2:n
         I[j] = Idx[j .== U][1]
-        println("Go from ", I[j - 1] - 1, " to ", I[j] - 1)
+        println("Go from ", I[j - 1] - 1, " to ", I[j] - 1, " with cost ", t[I[j-1],I[j]], " for a tt of ", TT[I[j]])
     end
-    println("Go from ", I[end] - 1, " to ", I[1]-1)
+    println("Go from ", I[end] - 1, " to ", I[1]-1, " with cost ", t[I[end],I[1]], " for a tt of ", TT[I[end]] + t[I[end],I[1]])
 
     if  size(unique(I),1) != n #Check if solution contains loops smaller than n
         println("This solution is not feasable!!")
