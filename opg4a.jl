@@ -9,11 +9,12 @@ n = size(t,1)
 
 model = Model(GLPK.Optimizer)
 
-M = 300
+M = 600
 
 @variable(model, x[1:n,1:n], Bin)
 @variable(model, u[1:n] .>= 0)
 @variable(model, tt[1:n] .>=0)
+@variable(model, w[1:n] .>=0)
 
 ui = repeat(u[2:end],1,n-1)
 uj = transpose(ui)
@@ -21,7 +22,9 @@ uj = transpose(ui)
 ti = repeat(tt[2:end],1,n-1)
 tj = transpose(ti)
 
-@objective(model, Min, sum(x.*t))
+wi = repeat(w[2:end],1,n-1)
+
+@objective(model, Min, sum(x.*t) + sum(w))
 
 @constraint(model, sum(x,dims=1)  .== 1 ) #We must visit each customer once
 @constraint(model, sum(x,dims=2)  .== 1 ) #We must leave each customer once
@@ -32,11 +35,13 @@ tj = transpose(ti)
 @constraint(model, u[2:end] .<= n)
 
 @constraint(model, tt[1] .== 0)
-@constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]))
-@constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]))
-@constraint(model, ti - tj + x[2:end,2:end].*t[2:end,2:end] .<= M.*(1 .- x[2:end,2:end]))
-@constraint(model, tt[2:end] .>= e)
-@constraint(model, tt[2:end] .<= l)
+@constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) .+ w[1])
+@constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]) .+ sum(w))
+@constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wi .<= M.*(1 .- x[2:end,2:end]))
+
+@constraint(model, tt[2:end] .<= l[1:end])
+@constraint(model, tt[2:end] .>= e[1:end])
+#@constraint(model, w .<= M)
 
 
 
@@ -50,6 +55,7 @@ if termination_status(model) == MOI.OPTIMAL
     Idx = copy(I)
     U = (round.(value.(u)))
     TT = (round.(value.(tt)))
+    W = round.(value.(w))
 
     #Interpret result:
     for j in 2:n
