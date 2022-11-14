@@ -23,6 +23,7 @@ ti = repeat(tt[2:end],1,n-1)
 tj = transpose(ti)
 
 wi = repeat(w[2:end],1,n-1)
+wj = transpose(wi)
 
 @objective(model, Min, sum(x.*t) + sum(w))
 
@@ -35,9 +36,9 @@ wi = repeat(w[2:end],1,n-1)
 @constraint(model, u[2:end] .<= n)
 
 @constraint(model, tt[1] .== 0)
-@constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) .+ w[1])
+@constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) + w[1])
 @constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]) .+ sum(w))
-@constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wi .<= M.*(1 .- x[2:end,2:end]))
+@constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wj .<= M.*(1 .- x[2:end,2:end]))
 
 @constraint(model, tt[2:end] .<= l[1:end])
 @constraint(model, tt[2:end] .>= e[1:end])
@@ -60,9 +61,9 @@ if termination_status(model) == MOI.OPTIMAL
     #Interpret result:
     for j in 2:n
         I[j] = Idx[j .== U][1]
-        println("Go from ", I[j - 1] - 1, " to ", I[j] - 1, " with cost ", t[I[j-1],I[j]], " for a tt of ", TT[I[j]])
+        println("Wait ", W[I[j-1]] ," then go from ", I[j - 1] - 1, " to ", I[j] - 1, " with cost ", t[I[j-1],I[j]], " for a travel time of ", TT[I[j]])
     end
-    println("Go from ", I[end] - 1, " to ", I[1]-1, " with cost ", t[I[end],I[1]], " for a tt of ", TT[I[end]] + t[I[end],I[1]])
+    println("Wait ", W[I[end]] ," then go from ", I[end] - 1, " to ", I[1]-1, " with cost ", t[I[end],I[1]], " for a travel time of ", TT[I[end]] + t[I[end],I[1]])
 
     if  size(unique(I),1) != n #Check if solution contains loops smaller than n
         println("This solution is not feasable!!")
