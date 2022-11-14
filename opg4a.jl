@@ -1,7 +1,7 @@
 using JuMP, GLPK
 
-if !(@isdefined t, e, l)
-    throw("Load dataset 'q3-data.jl' before running this script")
+if !((@isdefined t) * (@isdefined t) * (@isdefined t))
+    throw("Load dataset 'q4-data.jl' before running this script")
 end
 
 n = size(t,1)
@@ -35,6 +35,8 @@ tj = transpose(ti)
 @constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]))
 @constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]))
 @constraint(model, ti - tj + x[2:end,2:end].*t[2:end,2:end] .<= M.*(1 .- x[2:end,2:end]))
+@constraint(model, tt[2:end] .>= e)
+@constraint(model, tt[2:end] .<= l)
 
 
 
