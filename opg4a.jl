@@ -9,7 +9,7 @@ n = size(t,1)
 
 model = Model(GLPK.Optimizer)
 
-M = 600
+M = 500
 
 @variable(model, x[1:n,1:n], Bin)
 @variable(model, u[1:n] .>= 0)
@@ -38,7 +38,7 @@ wj = transpose(wi)
 @constraint(model, tt[1] .== 0)
 @constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) + w[1])
 @constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]) .+ sum(w))
-@constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wj .<= M.*(1 .- x[2:end,2:end]))
+@constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wi .<= M.*(1 .- x[2:end,2:end]))
 
 @constraint(model, tt[2:end] .<= l[1:end])
 @constraint(model, tt[2:end] .>= e[1:end])
