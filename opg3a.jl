@@ -29,7 +29,7 @@ i = 1
 I = Array(n)
 I[1] = i
 Index = Array(n)
-cost = 0
+local cost = 0
 
 println("Test")
 for j in n[1:end-1]

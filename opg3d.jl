@@ -37,7 +37,7 @@ uj = transpose(ui)
 @constraint(model, u[2:end] .<= n)
 
 
-optimize!(model)
+optimize!(model) # Notice the distinct lack of loops in the constraints...
 
 
 if termination_status(model) == MOI.OPTIMAL
