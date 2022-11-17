@@ -38,13 +38,13 @@ wj = transpose(wi)
 
 @constraint(model, tt[1] .== 0)
 @constraint(model, s[1] .== 1)
-@constraint(model, tt .<= 250)
+@constraint(model, sum(x.*t) + sum(w) .<= 250)
 @constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) + w[1])
 @constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]) .+ sum(w))
 @constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wi .<= M.*(1 .- x[2:end,2:end]))
 
 @constraint(model, tt[2:end] .<= l[1:end].*s[2:end] .+ M.*(1 .-s[2:end]))
-@constraint(model, tt[2:end] .>= e[1:end].*s[2:end])
+@constraint(model, tt[2:end] .>= e[1:end].*s[2:end]) # + 0.*(1 .-s[2:end])
 #@constraint(model, w .<= M)
 
 
