@@ -9,12 +9,13 @@ n = size(t,1)
 
 model = Model(GLPK.Optimizer)
 
-M = 500
+M = 250
 
 @variable(model, x[1:n,1:n], Bin)
 @variable(model, u[1:n] .>= 0)
 @variable(model, tt[1:n] .>=0)
 @variable(model, w[1:n] .>=0)
+@variable(model, s[1:n], Bin)
 
 ui = repeat(u[2:end],1,n-1)
 uj = transpose(ui)
@@ -25,7 +26,7 @@ tj = transpose(ti)
 wi = repeat(w[2:end],1,n-1)
 wj = transpose(wi)
 
-@objective(model, Min, sum(x.*t) + sum(w))
+@objective(model, Max, sum(s))
 
 @constraint(model, sum(x,dims=1)  .== 1 ) #We must visit each customer once
 @constraint(model, sum(x,dims=2)  .== 1 ) #We must leave each customer once
@@ -36,12 +37,14 @@ wj = transpose(wi)
 @constraint(model, u[2:end] .<= n)
 
 @constraint(model, tt[1] .== 0)
+@constraint(model, s[1] .== 1)
+@constraint(model, tt .<= 250)
 @constraint(model, tt[2:end] .>= sum(x[1,:].*t[1,:]) + w[1])
 @constraint(model, tt[2:end] .<= sum(x.*t) .- sum(x[:,1].*t[:,1]) .+ sum(w))
 @constraint(model, ti .- tj .+ x[2:end,2:end].*t[2:end,2:end] .+ wi .<= M.*(1 .- x[2:end,2:end]))
 
-@constraint(model, tt[2:end] .<= l[1:end])
-@constraint(model, tt[2:end] .>= e[1:end])
+@constraint(model, tt[2:end] .<= l[1:end].*s[2:end] .+ M.*(1 .-s[2:end]))
+@constraint(model, tt[2:end] .>= e[1:end].*s[2:end])
 #@constraint(model, w .<= M)
 
 

@@ -1,6 +1,6 @@
 using JuMP, GLPK
 
-if !((@isdefined t) * (@isdefined t) * (@isdefined t))
+if !((@isdefined t) * (@isdefined e) * (@isdefined l))
     throw("Load dataset 'q4-data.jl' before running this script")
 end
 
