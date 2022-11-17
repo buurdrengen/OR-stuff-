@@ -1,11 +1,3 @@
-
-staff_demand=[15 15 18 37 43 47 58 54 43 29 24 19]
-
-# Lecture 7, Example 3
-# 1-index
-
-# 3) Construct constraints linearly
-# M ?
 ## Subsection 1 & 2
 using JuMP
 using GLPK
