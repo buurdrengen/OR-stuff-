@@ -32,7 +32,7 @@ uj = transpose(ui)
 @constraint(model, sum(x,dims=2)  .== 1 ) #We must leave each customer once
 
 @constraint(model, u[1] == 1) #We must start at home (1)
-@constraint(model, ui .- uj .+ 1 .<= (n-1).*(1 .- x[2:end,2:end]))
+@constraint(model, ui .- uj .+ 1 .<= (n-1).*(1 .- x[2:end,2:end])) # i->j => uj = ui + 1
 @constraint(model, u[2:end] .>= 2)
 @constraint(model, u[2:end] .<= n)
 
